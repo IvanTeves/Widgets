@@ -14,63 +14,79 @@
         <DesktopAcrylicBackdrop />
     </Window.SystemBackdrop>
 
-    <!-- Chrome con esquinas redondeadas y leve tinte para apariencia de widget -->
-    <Border x:Name="Chrome" Padding="12" Background="#1A000000" CornerRadius="12">
+    <!-- Sin margen/padding externo para que no quede borde extra -->
+    <Border x:Name="Chrome" Padding="0" Background="#1A000000" CornerRadius="12">
         <Grid x:Name="Root" Background="Transparent">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <!-- Barra superior personalizada (drag + acciones) -->
-            <Grid x:Name="DragBar" Grid.Row="0" Height="32" Padding="8" Background="#18000000" PointerPressed="DragBar_PointerPressed">
+            <Grid x:Name="DragBar" Grid.Row="0" Height="36" Padding="8,4" Background="#18000000" PointerPressed="DragBar_PointerPressed">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Widget" VerticalAlignment="Center" Opacity="0.85" />
+                <TextBlock Text="Widget" VerticalAlignment="Center" Opacity="0.9" />
 
-                <Button Grid.Column="1" x:Name="PinButton" Content="Pin" Margin="0,0,6,0"
-                        Background="Transparent" BorderBrush="Transparent" Click="PinButton_Click"/>
+                <!-- Botón Pin con icono MDL2 -->
+                <Button Grid.Column="1" x:Name="PinButton" Background="Transparent" BorderBrush="Transparent" Click="PinButton_Click"
+                        ToolTipService.ToolTip="Anclar" MinWidth="32" MinHeight="32" Padding="0" Margin="0,0,6,0">
+                    <FontIcon x:Name="PinIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xE718;" FontSize="16"/>
+                </Button>
 
-                <Button Grid.Column="2" x:Name="HideHeaderButton" Content="Ocultar" Margin="0,0,6,0"
-                        Background="Transparent" BorderBrush="Transparent" Click="HideHeaderButton_Click"/>
+                <!-- Botón Ocultar con icono MDL2 (ojo tachado) -->
+                <Button Grid.Column="2" x:Name="HideHeaderButton" Background="Transparent" BorderBrush="Transparent" Click="HideHeaderButton_Click"
+                        ToolTipService.ToolTip="Ocultar encabezado" MinWidth="32" MinHeight="32" Padding="0" Margin="0,0,6,0">
+                    <FontIcon x:Name="HideIcon" FontFamily="Segoe MDL2 Assets" Glyph="&#xE8F4;" FontSize="16"/>
+                </Button>
 
-                <Button Grid.Column="3" x:Name="CloseButton" Content="✕" Width="28" Height="28"
-                        VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent"
-                        Margin="0,0,8,0" ToolTipService.ToolTip="Cerrar" Click="CloseButton_Click"/>
+                <!-- Botón Cerrar con icono MDL2 (E711) -->
+                <Button Grid.Column="3" x:Name="CloseButton" Background="Transparent" BorderBrush="Transparent" Click="CloseButton_Click"
+                        ToolTipService.ToolTip="Cerrar" MinWidth="32" MinHeight="32" Padding="0" Margin="0">
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;" FontSize="16"/>
+                </Button>
             </Grid>
 
-            <!-- Controles principales -->
-            <StackPanel x:Name="ControlsPanel" Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
-                <TextBox x:Name="UrlTextBox" Width="360" PlaceholderText="Ingrese URL (web o API)" />
-                <Button x:Name="OpenWebButton" Content="Abrir Web" Click="OpenWebButton_Click" />
-                <Button x:Name="CallApiButton" Content="Consultar API" Click="CallApiButton_Click" />
+            <!-- Panel de5 accesos rápidos con imagen -->
+            <StackPanel x:Name="LinksPanel" Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="8,8,8,8">
+                <Button Background="Transparent" BorderBrush="Transparent" Click="Link_Click" Tag="Link1">
+                    <Image Source="Assets/Square150x150Logo.scale-200.png" Width="64" Height="64" Stretch="UniformToFill"/>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Click="Link_Click" Tag="Link2">
+                    <Image Source="Assets/Wide310x150Logo.scale-200.png" Width="64" Height="64" Stretch="UniformToFill"/>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Click="Link_Click" Tag="Link3">
+                    <Image Source="Assets/StoreLogo.png" Width="64" Height="64" Stretch="UniformToFill"/>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Click="Link_Click" Tag="Link4">
+                    <Image Source="Assets/Square44x44Logo.scale-200.png" Width="64" Height="64" Stretch="UniformToFill"/>
+                </Button>
+                <Button Background="Transparent" BorderBrush="Transparent" Click="Link_Click" Tag="Link5">
+                    <Image Source="Assets/LockScreenLogo.scale-200.png" Width="64" Height="64" Stretch="UniformToFill"/>
+                </Button>
             </StackPanel>
 
-            <!-- Resultado de API -->
-            <Border x:Name="ApiBorder" Grid.Row="2" Margin="0,12,0,12" Padding="8" Background="#0F000000" CornerRadius="8">
-                <TextBlock x:Name="ApiResultText" TextWrapping="WrapWholeWords" />
-            </Border>
-
-            <!-- Contenido principal -->
-            <Grid Grid.Row="3">
+            <!-- Contenido principal: WebView para abrir las URLs -->
+            <Grid Grid.Row="2">
                 <WebView2 x:Name="Browser" DefaultBackgroundColor="Transparent" Loaded="Browser_Loaded" />
             </Grid>
 
             <!-- Botón flotante para restaurar header cuando está oculto -->
             <Button x:Name="RestoreHeaderButton"
-                    Width="24" Height="24"
+                    Width="28" Height="28"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="8" Visibility="Collapsed"
                     Background="#33000000" BorderBrush="Transparent"
-                    Content="≡" ToolTipService.ToolTip="Mostrar controles"
+                    ToolTipService.ToolTip="Mostrar controles"
                     Click="RestoreHeaderButton_Click"
-                    Canvas.ZIndex="10" />
+                    Canvas.ZIndex="10">
+                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE700;" FontSize="14"/>
+            </Button>
         </Grid>
     </Border>
 </Window>

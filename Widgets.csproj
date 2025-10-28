@@ -23,6 +23,14 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
 
+  <!-- Ensure all assets are copied to output and publish folders for unpackaged runs -->
+  <ItemGroup>
+    <Content Update="Assets\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
@@ -42,7 +50,7 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
   </ItemGroup>
 
-  <!-- Habilitar publicación self-contained (sin prerequisitos) -->
+  <!-- Habilitar publicaciÃ³n self-contained (sin prerequisitos) -->
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>

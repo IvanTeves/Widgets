@@ -1,8 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -12,11 +11,18 @@ namespace Widgets
 {
     public sealed partial class MainWindow : Window
     {
-        private readonly HttpClient _http = new HttpClient();
         private IntPtr _hwnd;
         private AppWindow? _appWindow;
         private bool _isPinned;
         private bool _isHeaderHidden;
+        private readonly Dictionary<string, string> _links = new()
+        {
+            {"Link1", "http://10.230.20.2:9088/data/perspective/client/Chart/component"},
+            {"Link2", "http://10.230.20.2:9088/data/perspective/client/Chart/component"},
+            {"Link3", "https://www.github.com"},
+            {"Link4", "https://www.nuget.org"},
+            {"Link5", "https://learn.microsoft.com"},
+        };
 
         public MainWindow()
         {
@@ -59,23 +65,29 @@ namespace Widgets
                 try { overlapped.IsAlwaysOnTop = pin; } catch { }
             }
             _isPinned = pin;
-            var pinBtn = FindEl<Button>("PinButton"); if (pinBtn != null) pinBtn.Content = pin ? "Unpin" : "Pin";
+            var pinBtn = FindEl<Button>("PinButton");
+            if (pinBtn != null)
+            {
+                ToolTipService.SetToolTip(pinBtn, pin ? "Desanclar" : "Anclar");
+                var pinIcon = FindEl<FontIcon>("PinIcon");
+                if (pinIcon != null) pinIcon.Glyph = pin ? "\uE719" : "\uE718"; // filled vs outline
+            }
         }
 
         private void ApplyHeaderVisibility(bool hide)
         {
-            var controls = FindEl<StackPanel>("ControlsPanel");
-            var apiBorder = FindEl<Border>("ApiBorder");
-            var hideBtn = FindEl<Button>("HideHeaderButton");
             var drag = DragBar;
+            var links = FindEl<StackPanel>("LinksPanel");
             var restore = FindEl<Button>("RestoreHeaderButton");
+            var hideBtn = FindEl<Button>("HideHeaderButton");
+            var hideIcon = FindEl<FontIcon>("HideIcon");
 
             if (drag != null) drag.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
-            if (controls != null) controls.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
-            if (apiBorder != null) apiBorder.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+            if (links != null) links.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
             if (restore != null) restore.Visibility = hide ? Visibility.Visible : Visibility.Collapsed;
             _isHeaderHidden = hide;
-            if (hideBtn != null) hideBtn.Content = hide ? "Mostrar" : "Ocultar";
+            if (hideBtn != null) ToolTipService.SetToolTip(hideBtn, hide ? "Mostrar encabezado" : "Ocultar encabezado");
+            if (hideIcon != null) hideIcon.Glyph = hide ? "\uE8A3" : "\uE8F4"; // eye vs eye-off
         }
 
         // Iniciar WebView2 con runtime fijo si existe
@@ -94,10 +106,7 @@ namespace Widgets
                 }
                 await Browser.EnsureCoreWebView2Async();
             }
-            catch
-            {
-                // Fallback al runtime instalado del sistema si hay error
-            }
+            catch { }
         }
 
         private void DragBar_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -113,22 +122,14 @@ namespace Widgets
         private void HideHeaderButton_Click(object sender, RoutedEventArgs e) => ApplyHeaderVisibility(!_isHeaderHidden);
         private void RestoreHeaderButton_Click(object sender, RoutedEventArgs e) => ApplyHeaderVisibility(false);
 
-        private void OpenWebButton_Click(object sender, RoutedEventArgs e)
+        private void Link_Click(object sender, RoutedEventArgs e)
         {
-            var url = UrlTextBox.Text?.Trim();
-            if (string.IsNullOrWhiteSpace(url)) return;
-            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) url = "https://" + url;
-            try { Browser.Source = new Uri(url); } catch (Exception ex) { ApiResultText.Text = $"URL inválida: {ex.Message}"; }
-        }
-
-        private async void CallApiButton_Click(object sender, RoutedEventArgs e)
-        {
-            var url = UrlTextBox.Text?.Trim();
-            if (string.IsNullOrWhiteSpace(url)) return;
-            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) url = "https://" + url;
-            ApiResultText.Text = "Consultando...";
-            try { using var resp = await _http.GetAsync(url); var body = await resp.Content.ReadAsStringAsync(); ApiResultText.Text = $"{(int)resp.StatusCode} {resp.ReasonPhrase}\n\n{body}"; }
-            catch (Exception ex) { ApiResultText.Text = $"Error: {ex.Message}"; }
+            if (sender is Button btn && btn.Tag is string key && _links.TryGetValue(key, out var url))
+            {
+                if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                    url = "https://" + url;
+                try { Browser.Source = new Uri(url); } catch { }
+            }
         }
 
         #region Win32 Drag helpers
