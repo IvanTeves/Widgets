@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Widgets.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Widgets"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Widgets">
+
+    <!-- Fondo más tipo "flotante" usando DesktopAcrylic (más translúcido que Mica) -->
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+
+    <!-- Chrome con esquinas redondeadas y leve tinte para apariencia de widget -->
+    <Border x:Name="Chrome" Padding="12" Background="#1A000000" CornerRadius="12">
+        <Grid x:Name="Root" Background="Transparent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Barra superior personalizada (drag + acciones) -->
+            <Grid x:Name="DragBar" Grid.Row="0" Height="32" Padding="8" Background="#18000000" PointerPressed="DragBar_PointerPressed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Widget" VerticalAlignment="Center" Opacity="0.85" />
+
+                <Button Grid.Column="1" x:Name="PinButton" Content="Pin" Margin="0,0,6,0"
+                        Background="Transparent" BorderBrush="Transparent" Click="PinButton_Click"/>
+
+                <Button Grid.Column="2" x:Name="HideHeaderButton" Content="Ocultar" Margin="0,0,6,0"
+                        Background="Transparent" BorderBrush="Transparent" Click="HideHeaderButton_Click"/>
+
+                <Button Grid.Column="3" x:Name="CloseButton" Content="✕" Width="28" Height="28"
+                        VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent"
+                        Margin="0,0,8,0" ToolTipService.ToolTip="Cerrar" Click="CloseButton_Click"/>
+            </Grid>
+
+            <!-- Controles principales -->
+            <StackPanel x:Name="ControlsPanel" Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                <TextBox x:Name="UrlTextBox" Width="360" PlaceholderText="Ingrese URL (web o API)" />
+                <Button x:Name="OpenWebButton" Content="Abrir Web" Click="OpenWebButton_Click" />
+                <Button x:Name="CallApiButton" Content="Consultar API" Click="CallApiButton_Click" />
+            </StackPanel>
+
+            <!-- Resultado de API -->
+            <Border x:Name="ApiBorder" Grid.Row="2" Margin="0,12,0,12" Padding="8" Background="#0F000000" CornerRadius="8">
+                <TextBlock x:Name="ApiResultText" TextWrapping="WrapWholeWords" />
+            </Border>
+
+            <!-- Contenido principal -->
+            <Grid Grid.Row="3">
+                <WebView2 x:Name="Browser" DefaultBackgroundColor="Transparent" Loaded="Browser_Loaded" />
+            </Grid>
+
+            <!-- Botón flotante para restaurar header cuando está oculto -->
+            <Button x:Name="RestoreHeaderButton"
+                    Width="24" Height="24"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="8" Visibility="Collapsed"
+                    Background="#33000000" BorderBrush="Transparent"
+                    Content="≡" ToolTipService.ToolTip="Mostrar controles"
+                    Click="RestoreHeaderButton_Click"
+                    Canvas.ZIndex="10" />
+        </Grid>
+    </Border>
+</Window>

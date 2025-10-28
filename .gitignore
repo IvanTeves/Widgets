@@ -1,0 +1,60 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build
+bin/
+obj/
+[Bb]uild/
+[Bb]uilds/
+
+# MSBuild
+*.cache
+*.mdb
+*.pdb
+*.ilk
+*.log
+*.tlog
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Dotnet
+*.deps.json
+*.dll
+*.exe
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Windows App SDK / Publishing
+AppPackages/
+*.msix*
+Package.StoreAssociation.xml
+
+# Temporary
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+~$*
+$tf/
+
+# Rider/VSCode
+.idea/
+*.iml
+.vscode/
+
+# WebView2 Fixed Runtime (distribute outside of git)
+WebView2Runtime/
+
+# OS
+Thumbs.db
+.DS_Store
