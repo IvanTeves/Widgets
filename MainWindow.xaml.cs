@@ -6,6 +6,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Windows.Graphics;
 
 namespace Widgets
 {
@@ -15,6 +16,7 @@ namespace Widgets
         private AppWindow? _appWindow;
         private bool _isPinned;
         private bool _isHeaderHidden;
+        private const string HomeUrl = "http://10.230.20.2:9088/data/perspective/client/Chart/widgets";
         private readonly Dictionary<string, string> _links = new()
         {
             {"Link1", "http://10.230.20.2:9088/data/perspective/client/Chart/component"},
@@ -28,6 +30,10 @@ namespace Widgets
         {
             InitializeComponent();
             InitializeWindowChrome();
+            // Mostrar barra (botones) y ocultar solo accesos rápidos
+            ApplyHeaderVisibility(false);
+            var links = FindEl<StackPanel>("LinksPanel");
+            if (links != null) links.Visibility = Visibility.Collapsed;
         }
 
         private T? FindEl<T>(string name) where T : class => (this.Content as FrameworkElement)?.FindName(name) as T;
@@ -48,8 +54,10 @@ namespace Widgets
                     overlapped.IsResizable = true; // permite redimensionar desde bordes invisibles
                     // Quitar fondo del título del sistema por completo
                     _appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                    _appWindow.TitleBar.ButtonBackgroundColor = Windows.UI.Color.FromArgb(0, 0, 0, 0);
-                    _appWindow.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Color.FromArgb(0, 0, 0, 0);
+                    _appWindow.TitleBar.ButtonBackgroundColor = Windows.UI.Color.FromArgb(0,0,0,0);
+                    _appWindow.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Color.FromArgb(0,0,0,0);
+                    // Tamaño inicial tipo teléfono (portrait)
+                    _appWindow.Resize(new SizeInt32(420,820));
                 }
                 catch { }
             }
@@ -105,6 +113,8 @@ namespace Widgets
                     Environment.SetEnvironmentVariable("WEBVIEW2_USER_DATA_FOLDER", userData, EnvironmentVariableTarget.Process);
                 }
                 await Browser.EnsureCoreWebView2Async();
+                // Navegar a la pantalla de inicio solicitada
+                try { Browser.Source = new Uri(HomeUrl); } catch { }
             }
             catch { }
         }
